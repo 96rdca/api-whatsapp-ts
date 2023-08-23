@@ -17,7 +17,7 @@ function loadRouter(file: string): void {
   const name = removeExtension(file);
   if (name !== "index") {
     import(`./${file}`).then((routerModule) => {
-      console.log("cargado", name);
+      console.log("Controller Loaded  ... ", name);
       router.use(`/${name}`, routerModule.router);
     });
   }

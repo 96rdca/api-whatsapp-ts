@@ -1,10 +1,10 @@
 import { ContainerBuilder } from "node-dependency-injection";
 import { LeadCreate } from "../application/lead.create";
 import LeadCtrl from "./controller/lead.ctrl";
-import MetaRepository from "./repositories/meta.repository";
 import MockRepository from "./repositories/mock.repository";
-import TwilioService from "./repositories/twilio.repository";
 import WsTransporter from "./repositories/ws.external";
+// import TwilioService from "./repositories/twilio.repository";
+// import MetaRepository from "./repositories/meta.repository";
 
 const container = new ContainerBuilder();
 

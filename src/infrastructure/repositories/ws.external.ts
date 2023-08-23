@@ -1,6 +1,7 @@
 import { Client, LocalAuth } from "whatsapp-web.js";
 import { image as imageQr } from "qr-image";
 import LeadExternal from "../../domain/lead-external.repository";
+import qrcode from 'qrcode-terminal';
 
 /**
  * Extendemos los super poderes de whatsapp-web
@@ -20,7 +21,7 @@ class WsTransporter extends Client implements LeadExternal {
       },
     });
 
-    console.log("Iniciando....");
+    console.log("Loading Whatsapp-Web.js...");
 
     this.initialize();
 
@@ -35,8 +36,10 @@ class WsTransporter extends Client implements LeadExternal {
     });
 
     this.on("qr", (qr) => {
-      console.log("Escanea el codigo QR que esta en la carepta tmp");
+      console.log("Escanea el codigo QR que esta en la carepta tmp or terminal");
       this.generateImage(qr);
+      // show qr on console
+      qrcode.generate(qr, { small: true });
     });
   }
 
@@ -49,11 +52,28 @@ class WsTransporter extends Client implements LeadExternal {
     try {
       if (!this.status) return Promise.resolve({ error: "WAIT_LOGIN" });
       const { message, phone } = lead;
+
+      // Check is the number is registered on the platform
+      const isWhatsappNumb = await this.isRegisteredUser(`${phone}@c.us`);
+      if (!isWhatsappNumb) {
+        throw Error(`The number ${phone} is not registered on WhatsApp.`);
+      }
+
+      // Wait between 2s and 5s
+      await this.delay(2000, 5000);
+
+      // send the message to the whatsapp
       const response = await this.sendMessage(`${phone}@c.us`, message);
       return { id: response.id.id };
     } catch (e: any) {
       return Promise.resolve({ error: e.message });
     }
+  }
+
+  private delay(minDelay: number, maxDelay: number) {
+    const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+
+    return new Promise((resolve) => setTimeout(resolve, delay));
   }
 
   getStatus(): boolean {
