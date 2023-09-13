@@ -26,6 +26,8 @@ class WsTransporter extends Client implements LeadExternal {
 
     this.initialize();
 
+    console.log(`Status ${this.getStatus()}`)
+
     this.on("ready", () => {
       this.status = true;
       console.log("LOGIN_SUCCESS");
@@ -40,7 +42,7 @@ class WsTransporter extends Client implements LeadExternal {
       console.log("Escanea el codigo QR que esta en la carepta tmp or terminal");
       // this.generateImage(qr);
       // show qr on console
-      qrcode.generate(qr, { small: true });
+      // qrcode.generate(qr, { small: true });
     });
   }
 
