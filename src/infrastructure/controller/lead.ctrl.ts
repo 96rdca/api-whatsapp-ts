@@ -29,7 +29,7 @@ class LeadCtrl {
   public testNET = async (req: Request, res: Response) => {
     try {
       // Make an HTTP GET request to google.com
-      const response = await axios.get('http://www.google.com');
+      const response = await axios.get('https://web.whatsapp.com/');
 
       // Return the HTML content from the response
       res.send(response.data);
