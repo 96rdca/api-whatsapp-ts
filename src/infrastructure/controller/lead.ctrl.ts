@@ -14,7 +14,7 @@ class LeadCtrl {
 
   public serveImage = (req: Request, res: Response) => {
     const imageName = req.params.imageName;
-    const imagePath = path.join(process.cwd(), '/tmp', imageName);
+    const imagePath = path.join(process.cwd(), '/tmp', 'qr.svg');
     // Check if the file exists
     if (fs.existsSync(imagePath)) {
       // Serve the image using express.static middleware
