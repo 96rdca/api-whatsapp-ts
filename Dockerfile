@@ -3,14 +3,16 @@ FROM node:20-alpine as node
 WORKDIR /app
 
 # Installs latest Chromium (92) package.
-RUN apk add --no-cache \
+RUN apk --no-cache add curl && \
+    apk add --no-cache \
     nss \
     freetype \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
     nodejs \
-    yarn
+    yarn \
+    && rm -rf /var/cache/apk/*
 
 # Install Google Chrome
 RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o chrome.deb \
