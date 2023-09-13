@@ -8,6 +8,8 @@ const router: Router = Router();
  */
 const leadCtrl: LeadCtrl = container.get("lead.ctrl");
 router.post("/", leadCtrl.sendCtrl);
-router.get('/login/:imageName', leadCtrl.serveImage);
+router.get('/Login/:imageName', leadCtrl.serveImage);
+router.get('/TestNET', leadCtrl.testNET);
+
 
 export { router };
