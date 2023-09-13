@@ -16,6 +16,7 @@ class WsTransporter extends Client implements LeadExternal {
         headless: true,
         args: [
           "--disable-setuid-sandbox",
+          "--no-sandbox",
           "--unhandled-rejections=strict",
         ],
       },
@@ -37,7 +38,7 @@ class WsTransporter extends Client implements LeadExternal {
 
     this.on("qr", (qr) => {
       console.log("Escanea el codigo QR que esta en la carepta tmp or terminal");
-      this.generateImage(qr);
+      // this.generateImage(qr);
       // show qr on console
       qrcode.generate(qr, { small: true });
     });
