@@ -2,14 +2,17 @@ import { Client, LocalAuth } from "whatsapp-web.js";
 import { image as imageQr } from "qr-image";
 import LeadExternal from "../../domain/lead-external.repository";
 import qrcode from 'qrcode-terminal';
+import fs from 'fs';
 
 /**
  * Extendemos los super poderes de whatsapp-web
  */
 class WsTransporter extends Client implements LeadExternal {
   private status = false;
+  private readonly folderName = 'tmp';
 
   constructor() {
+
     super({
       authStrategy: new LocalAuth(),
       puppeteer: {
@@ -23,10 +26,6 @@ class WsTransporter extends Client implements LeadExternal {
     });
 
     console.log("Loading Whatsapp-Web.js...");
-
-    this.initialize();
-
-    console.log(`Status ${this.getStatus()}`)
 
     this.on("ready", () => {
       this.status = true;
@@ -44,6 +43,10 @@ class WsTransporter extends Client implements LeadExternal {
       // show qr on console
       qrcode.generate(qr, { small: true });
     });
+
+    this.initialize();
+
+    console.log(`Status ${this.getStatus()}, Listeners ${this.listenerCount('qr')}`);
   }
 
   /**
@@ -84,7 +87,16 @@ class WsTransporter extends Client implements LeadExternal {
   }
 
   private generateImage = (base64: string) => {
-    const path = `${process.cwd()}/tmp`;
+    const path = `${process.cwd()}/${this.folderName}`;
+
+    fs.mkdir(path, (err) => {
+      if (err) {
+        console.error(`Error creating folder: ${err}`);
+      } else {
+        console.log(`Folder "${path}" created successfully.`);
+      }
+    });
+
     let qr_svg = imageQr(base64, { type: "svg", margin: 4 });
     console.log(path);
     qr_svg.pipe(require("fs").createWriteStream(`${path}/qr.svg`));
