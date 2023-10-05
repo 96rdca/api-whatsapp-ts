@@ -1,28 +1,20 @@
 FROM node:20-alpine as node
 
 WORKDIR /app
-
 # Installs latest Chromium (92) package.
-RUN apk --no-cache add curl && \
-    apk add --no-cache \
+RUN apk add --no-cache \
+    chromium \
     nss \
     freetype \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
     nodejs \
-    yarn \
-    && rm -rf /var/cache/apk/*
-
-# Install Google Chrome
-RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o chrome.deb \
-    && dpkg -i chrome.deb \
-    && apt-get install -f -y \
-    && rm chrome.deb
+    yarn
 
 # Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Puppeteer v10.0.0 works with Chromium 92.
 COPY . .
