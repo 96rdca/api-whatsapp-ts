@@ -18,6 +18,11 @@ class LeadCtrl {
     res.send(response);
   }
 
+  public clearQueue = async ({body}: Request, res: Response) => {
+    const response = await this.leadCreator.clearQueue();
+    res.send(response);
+  }
+
   public loginWithImage = (req: Request, res: Response) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(process.cwd(), '/tmp', imageName);

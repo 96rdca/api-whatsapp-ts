@@ -64,7 +64,7 @@ class WsTransporter extends Client implements LeadExternal {
       }
 
       // Wait between 2s and 5s
-      await this.delay(2000, 5000);
+      await this.delay(2000, 4000);
 
       // send the message to the whatsapp
       const response = await this.sendMessage(`${phone}@c.us`, message);
