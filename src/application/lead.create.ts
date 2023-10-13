@@ -24,12 +24,12 @@ export class LeadCreate {
 
     this.messageQueue = async.queue<MessageData, TaskResult>(async ({ message, phone }: { message: string, phone: string }, callback: any) => {
       // const responseDbSave = await this.leadRepository.save({ message, phone });//TODO DB
-      await this.delay(15000, 30000); // Wait between 15s and 30s
+      await this.delay(15000, 20000); // Wait between 15s and 30s
       console.log(`En cola: ${this.messageQueue.length()}`);
 
       const responseExSave = await this.leadExternal.sendMsg({ message, phone });//TODO enviar a ws
 
-      callback(null, { responseExSave });
+      callback(null, { responseExSave, phone, time: new Date().toLocaleTimeString() });
     }, 1);
   }
 
