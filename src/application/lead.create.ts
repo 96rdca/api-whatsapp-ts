@@ -1,6 +1,5 @@
 import LeadExternal from "../domain/lead-external.repository";
-import LeadRepository from "../domain/lead.repository";
-import async from "async";
+import async, { DataContainer } from "async";
 
 interface MessageData {
   message: string;
@@ -13,23 +12,21 @@ interface TaskResult {
 
 export class LeadCreate {
   private messageQueue: async.QueueObject<MessageData>;
-  // private leadRepository: LeadRepository;
   private leadExternal: LeadExternal;
-  constructor(respositories: [LeadRepository, LeadExternal]) {
-    const [leadRepository, leadExternal] = respositories;
-    // this.leadRepository = leadRepository;
+  constructor(respositories: [ LeadExternal]) {
+    const [ leadExternal] = respositories;
     this.leadExternal = leadExternal;
 
     // Create a queue with concurrency of 1
 
     this.messageQueue = async.queue<MessageData, TaskResult>(async ({ message, phone }: { message: string, phone: string }, callback: any) => {
-      // const responseDbSave = await this.leadRepository.save({ message, phone });//TODO DB
-      await this.delay(15000, 20000); // Wait between 15s and 30s
       console.log(`En cola: ${this.messageQueue.length()}`);
+      
+      await this.delay(15000, 20000); // Wait between 15s and 30s
 
-      const responseExSave = await this.leadExternal.sendMsg({ message, phone });//TODO enviar a ws
-
-      callback(null, { responseExSave, phone, time: new Date().toLocaleTimeString() });
+      const responseExSave = await this.leadExternal.sendMsg({ message, phone });// enviar a ws
+      
+      callback(null, { responseExSave, time: new Date().toLocaleTimeString() });
     }, 1);
   }
 
@@ -40,10 +37,8 @@ export class LeadCreate {
     return new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  public async sendMessageAndSave({ message, phone }: MessageData) {
-    const messageData = { message, phone };
-
-    this.messageQueue.push(messageData, (error?: Error | null, result?: TaskResult | null) => {
+  public async sendMessage({ message, phone }: MessageData) {
+    this.messageQueue.push({ message, phone }, (error?: Error | null, result?: TaskResult | null) => {
       if (error) {
         console.log(error);
       } else {
@@ -51,19 +46,21 @@ export class LeadCreate {
       }
     });
 
-    return { success: "Message added to queue." };
+    return { success: `${phone} and message added to queue.` };
   }
 
-  // public async sendMessageAndSave({
-  //   message,
-  //   phone,
-  // }: {
-  //   message: string;
-  //   phone: string;
-  // }) {
-  //   const responseDbSave = await this.leadRepository.save({ message, phone });//TODO DB
-  //   const responseExSave = await this.leadExternal.sendMsg({ message, phone });//TODO enviar a ws
+  public async removeMessageByPhone(phone: string){
+    this.messageQueue.remove((item: DataContainer<MessageData>) => item.data.phone === phone);
 
-  //   return {responseDbSave, responseExSave};
-  // }
+    return {success: `${phone} and message removed from the queue`};
+  }
+
+  public async clearQueue(){
+    if(this.messageQueue.length() === 0)
+      return {error : 'Queue is already empty'};
+
+    this.messageQueue.kill();
+
+    return {success: 'Queue is now empty'};
+  }
 }
