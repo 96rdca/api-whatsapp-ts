@@ -40,7 +40,7 @@ class WsTransporter extends Client implements LeadExternal {
       console.log("Escanea el codigo QR ");
       this.generateImage(qr);
       // show qr on console
-      qrcode.generate(qr, { small: true });
+      // qrcode.generate(qr, { small: true });
     });
 
     this.initialize();
@@ -57,15 +57,6 @@ class WsTransporter extends Client implements LeadExternal {
 
       if (!this.status) return Promise.resolve({ error: "WAIT_LOGIN", phone });
 
-      // Check is the number is registered on the platform
-      const isWhatsappNumb = await this.isRegisteredUser(`${phone}@c.us`);
-      if (!isWhatsappNumb) {
-        return Promise.resolve({error: `The number ${phone} is not registered on WhatsApp.`});
-      }
-
-      // Wait between 2s and 5s
-      await this.delay(2000, 4000);
-
       // send the message to the whatsapp
       const response = await this.sendMessage(`${phone}@c.us`, message);
       return { id: response.id.id, phone };
@@ -74,10 +65,21 @@ class WsTransporter extends Client implements LeadExternal {
     }
   }
 
-  private delay(minDelay: number, maxDelay: number) {
-    const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+  async checkNumber(phone: string): Promise<any> {
+    try {
+      if (!this.status) return Promise.resolve({ error: "Wait Login", phone });
 
-    return new Promise((resolve) => setTimeout(resolve, delay));
+      const isWhatsappNumb = await this.isRegisteredUser(`${phone}@c.us`);
+
+      if (!isWhatsappNumb) {
+        return Promise.resolve({ hasWhatsapp: false, error: `The number ${phone} is not registered on Whatsapp` });
+      }
+
+      return Promise.resolve({ hasWhatsapp: true, error: '' });
+    }
+    catch (e: any) {
+      return Promise.resolve({ hasWhatsapp: false, error: e.message });
+    }
   }
 
   getStatus(): boolean {
