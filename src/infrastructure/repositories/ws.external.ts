@@ -1,4 +1,4 @@
-import { Client, LocalAuth } from "whatsapp-web.js";
+import { Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
 import { image as imageQr } from "qr-image";
 import LeadExternal from "../../domain/lead-external.repository";
 import qrcode from 'qrcode-terminal';
@@ -22,6 +22,10 @@ class WsTransporter extends Client implements LeadExternal {
           "--unhandled-rejections=strict",
         ],
       },
+      webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2410.1.html',
+      }
     });
 
     console.log("Loading Whatsapp-Web.js...");
@@ -37,10 +41,11 @@ class WsTransporter extends Client implements LeadExternal {
     });
 
     this.on("qr", (qr) => {
-      console.log("Escanea el codigo QR ");
+      console.log(`Escanea el codigo QR.\n -> Folder: ${this.folderName}/qr.svg \n -> Terminal\n -> Route: .../login/qr.svg`);
+
       this.generateImage(qr);
-      // show qr on console
-      // qrcode.generate(qr, { small: true });
+
+      qrcode.generate(qr, { small: true });
     });
 
     this.initialize();
@@ -55,10 +60,29 @@ class WsTransporter extends Client implements LeadExternal {
     try {
       const { message, phone } = lead;
 
-      if (!this.status) return Promise.resolve({ error: "WAIT_LOGIN", phone });
+      if (!this.status) return Promise.resolve({ error: "Wait Login", phone });
 
       // send the message to the whatsapp
       const response = await this.sendMessage(`${phone}@c.us`, message);
+      return { id: response.id.id, phone };
+    } catch (e: any) {
+      return Promise.resolve({ error: e.message });
+    }
+  }
+
+  /**
+   * Enviar mensaje de WS con imagen adjunta
+   * @param lead 
+   * @returns 
+   */
+  async sendMsgWithPhoto({ message, phone }: { message: string; phone: string; }): Promise<any> {
+    try {
+      if (!this.status) return Promise.resolve({ error: "Wait Login", phone });
+
+      const media = MessageMedia.fromFilePath(`${process.cwd()}/${this.folderName}/milkshake.png`);
+
+      const response = await this.sendMessage(`${phone}@c.us`, media, { caption: message });
+
       return { id: response.id.id, phone };
     } catch (e: any) {
       return Promise.resolve({ error: e.message });

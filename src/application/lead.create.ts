@@ -4,6 +4,7 @@ import async, { DataContainer } from "async";
 interface MessageData {
   message: string;
   phone: string;
+  hasImage: boolean;
 }
 
 interface TaskResult {
@@ -12,13 +13,14 @@ interface TaskResult {
 
 export class LeadCreate {
   private messageQueue: async.QueueObject<MessageData>;
+
   private leadExternal: LeadExternal;
   constructor(respositories: [LeadExternal]) {
     const [leadExternal] = respositories;
     this.leadExternal = leadExternal;
 
     // Create a queue with concurrency of 1
-    this.messageQueue = async.queue<MessageData, TaskResult>(async ({ message, phone }: { message: string, phone: string }, callback: any) => {
+    this.messageQueue = async.queue<MessageData, TaskResult>(async ({ message, phone, hasImage }: { message: string, phone: string, hasImage: boolean }, callback: any) => {
       console.log(`En cola: ${this.messageQueue.length()}`);
 
       await this.delay(2000, 2000);
@@ -45,9 +47,9 @@ export class LeadCreate {
     return new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  public async sendMessage({ message, phone }: MessageData) {
+  public async sendMessage(messageData: MessageData) {
     try {
-      this.messageQueue.push({ message, phone }, (error?: Error | null, result?: TaskResult | null) => {
+      this.messageQueue.push(messageData, (error?: Error | null, result?: TaskResult | null) => {
         if (error) {
           console.log(error);
         } else {
@@ -55,7 +57,7 @@ export class LeadCreate {
         }
       });
 
-      return { success: `${phone} and message added to queue.` };
+      return { success: `${messageData.phone} and message added to queue.` };
     } catch (error) {
       console.log(error);
       return { error: 'Error ocurred when adding to the queue' }

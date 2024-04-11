@@ -7,4 +7,4 @@ npm run build
 npm run dev
 ```
 
-docker run --privileged -e PORT=3001 -p 3001:3001 apiwhatsappts:latest
+docker run --privileged -e PORT=3001 -p 3001:3001 apiwhatsapp:latest

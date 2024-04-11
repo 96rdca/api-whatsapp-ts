@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as path from 'path';
+import path from 'path';
 import * as fs from 'fs'; // Import the fs module
 import { LeadCreate } from "../../application/lead.create";
 
@@ -8,17 +8,23 @@ class LeadCtrl {
 
   public sendText = async ({ body }: Request, res: Response) => {
     const { message, phone } = body;
-    const response = await this.leadCreator.sendMessage({ message, phone });
+    const response = await this.leadCreator.sendMessage({ message, phone, hasImage: false });
     res.send(response);
   };
 
-  public removeText = async ({body}: Request, res:Response) =>{
+  public sendTextwithImage = async ({ body }: Request, res: Response) => {
+    const { message, phone } = body;
+    const response = await this.leadCreator.sendMessage({ message, phone, hasImage: true });
+    res.send(response);
+  };
+
+  public removeText = async ({ body }: Request, res: Response) => {
     const { phone } = body;
     const response = await this.leadCreator.removeMessageByPhone(phone);
     res.send(response);
   }
 
-  public clearQueue = async ({body}: Request, res: Response) => {
+  public clearQueue = async ({ body }: Request, res: Response) => {
     const response = await this.leadCreator.clearQueue();
     res.send(response);
   }
